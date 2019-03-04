@@ -1,0 +1,52 @@
+version: '3'
+
+services:
+  commercy:
+    build: .
+    container_name: commercy
+    depends_on:
+      - db
+    links: 
+      - db
+    volumes:
+      - "./:/var/www/commercy"
+    command: >
+      bash -c "
+        php artisan key:generate
+        php -S 0.0.0.0:8181 -t ./public
+      "
+    ports:
+      - 8181:8181
+    networks:
+      - commercy-network
+
+  nginx:
+    image: nginx:1.15.8
+    container_name: nginx
+    depends_on:
+      - commercy
+    links: 
+      - commercy
+    volumes:
+      - ./.docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 80:80
+    networks:
+      - commercy-network
+
+  db:
+    image: mysql:5.7
+    container_name: db
+    environment:
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+    ports:
+      - ${DB_PORT}:3306
+    networks:
+      - commercy-network
+
+networks:
+  commercy-network:
+    driver: bridge

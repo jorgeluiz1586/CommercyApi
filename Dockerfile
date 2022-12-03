@@ -15,9 +15,9 @@ RUN apt install nodejs zlib1g-dev \
 
 RUN docker-php-ext-install zip
 
-RUN npm install -g yarn typescript
+RUN npm install -g cross-env yarn typescript
 
-WORKDIR /var/www/webmotors_clone
+WORKDIR /var/www/commercy
 
 COPY . .
 
